@@ -1,15 +1,21 @@
-    //1 import express
-    const express = require('express')
+//1 import express
+const express = require('express')
 
 
-    const userControllers = require('../controllers/userControllers')
+const userControllers = require('../controllers/userControllers')
 
-    const router = express.Router()
+const router = express.Router()
 
-    //Register user
-    router.post('/api/register',userControllers.registerUser)
+//Register user
+router.post('/api/register', userControllers.registerUser)
 
-    //login user
-    router.post('/api/login',userControllers.loginUser)
+//login user
+router.post('/api/login', userControllers.loginUser)
 
-    module.exports = router;
+//Googlelogin user
+router.post('/api/google-login', userControllers.googleAuth)
+
+//Register user
+router.post('/api/registerowner', userControllers.registerOwner)
+
+module.exports = router;
