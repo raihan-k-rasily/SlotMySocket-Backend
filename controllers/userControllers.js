@@ -69,7 +69,7 @@ exports.googleAuth = async (req, res) => {
         const existingUser = await Users.findOne({ email });
         if (existingUser) {
             // token genaration 
-            const token = jwt.sign({ userMail: existingUser.email, role: existingUser.role }, process.env.jwtKey)
+            const token = jwt.sign({ usermail: existingUser.email, role: existingUser.role }, process.env.jwtKey)
             console.log(token);
             res.status(200).json({ message: "Login Sucecessful", user: existingUser, token })
 
@@ -79,7 +79,7 @@ exports.googleAuth = async (req, res) => {
             const newUser = new Users({ username, email, password, role, status, profile })
             await newUser.save(); // save to  database 
             // token genaration
-            const token = jwt.sign({ userMail: newUser.email, role: newUser.role }, process.env.jwtKey)
+            const token = jwt.sign({ usermail: newUser.email, role: newUser.role }, process.env.jwtKey)
             console.log(token);
             res.status(201).json({ message: "login sucecessful", user: newUser, token });// second created user as response
 
@@ -174,7 +174,7 @@ exports.registerOwner = async (req, res) => {
         await newStation.save();
 
         const token = jwt.sign(
-            { userMail: savedUser.email, role: savedUser.role },
+            { usermail: savedUser.email, role: savedUser.role },
             process.env.jwtKey
         );
 
@@ -188,3 +188,43 @@ exports.registerOwner = async (req, res) => {
         res.status(500).json({ message: 'Error registering owner', error: err.message });
     }
 }
+
+// Get all registered users (excluding Admins)
+exports.getAllUsers = async (req, res) => {
+    try {
+        // Find users where role is 'User' (or simply all if you prefer)
+        console.log("get All Users");
+        
+        const allUsers = await Users.find({ role: "User" });
+        
+        res.status(200).json(allUsers);
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+// update User Status
+
+// userController.js or adminController.js
+
+exports.updateUsersStatus = async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body; 
+    
+    try {
+        const updatedUser = await Users.findByIdAndUpdate(
+            id, 
+            { status: status }, 
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json("User not found");
+        }
+
+        res.status(200).json(updatedUser);
+    } catch (error) {
+        res.status(500).json({ message: "Failed to update status", error: error.message });
+    }
+};
