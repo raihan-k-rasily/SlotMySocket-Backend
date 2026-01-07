@@ -28,7 +28,7 @@ exports.getPendingStations = async (req, res) => {
 };
 
 // update Station Status
-
+ 
 exports.updateStationStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body; // Expecting "APPROVED" or "REJECTED"
@@ -47,6 +47,33 @@ exports.updateStationStatus = async (req, res) => {
 
 // get View Stations
 exports.getViewStations = async (req, res) => {
+    console.log("Admin Request Received at /admin/View-stations"); // Debug log 1
+
+    try {
+        // 1. Fetch stations with View status
+        // 2. Populate owner details (Username, Email, Status)
+        const viewStations = await Stations.find({ status: { $ne: "PENDING" } })
+            .populate({
+                path: 'ownerId',
+                select: 'username email status'
+            });
+
+        if (!viewStations) {
+            return res.status(404).json({ message: "No stations found collection" });
+        }
+
+        // console.log(`Found ${viewStations.length} pending stations.`); // Debug log 2
+        res.status(200).json(viewStations);
+
+    } catch (error) {
+        console.error("Controller Error:", error.message);
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
+};
+
+
+// get View Stations
+exports.getOwnerViewStations = async (req, res) => {
     console.log("Admin Request Received at /admin/View-stations"); // Debug log 1
 
     try {
