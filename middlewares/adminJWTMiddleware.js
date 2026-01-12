@@ -14,7 +14,7 @@ const adminJwtMiddleware = (req, res, next) => {
     const token = authHeader.slice(7);
     
     // 3. Verify token
-    const jwtVerification = jwt.verify(token, process.env.jwtkey);
+    const jwtVerification = jwt.verify(token, process.env.jwtKey);
     console.log("Verified:", jwtVerification);
 
     // 4. Attach data to request object

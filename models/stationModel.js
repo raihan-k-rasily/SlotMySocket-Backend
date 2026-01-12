@@ -18,6 +18,10 @@ const stationSchema = new mongoose.Schema({
     images: [{
         type: String // URLs of station photos
     }],
+    workingHours: {
+        openingAt: { type: String, default: "09:00" }, // Format: "HH:mm"
+        closingAt: { type: String, default: "21:00" }
+    },
     status: {
         type: String,
         enum: ['OPEN', 'CLOSED', 'UNDER_MAINTENANCE', 'PENDING'],

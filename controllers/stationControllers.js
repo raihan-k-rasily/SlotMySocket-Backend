@@ -74,15 +74,16 @@ exports.getViewStations = async (req, res) => {
 // get View Stations for the logged-in Owner
 exports.getViewOwnerStations = async (req, res) => {
     // Debug log to ensure user ID is being passed from JWT middleware
-    console.log("Owner ID from JWT:", req.user.id); 
+    console.log("Owner ID from JWT:", req.userID); 
 
     try {
         // 1. Fetch stations where ownerId matches the ID from the JWT
         // 2. We filter by ownerId: req.user.id
         const viewStations = await Stations.find({ 
-            ownerId: req.user.id, 
+            ownerId: req.userID
         })
-
+        console.log(viewStations);
+        
         // If the array is empty, it means no stations are registered for this user
         if (!viewStations || viewStations.length === 0) {
             return res.status(404).json({ message: "No stations found for this owner." });

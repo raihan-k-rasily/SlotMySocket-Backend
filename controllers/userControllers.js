@@ -42,7 +42,7 @@ exports.loginUser = async (req, res) => {
 
             if (existingUser.password == password) {
                 // token genaration
-                const token = jwt.sign({ usermail: existingUser.email, role: existingUser.role }, process.env.jwtKey)
+                const token = jwt.sign({userId: existingUser._id, usermail: existingUser.email, role: existingUser.role }, process.env.jwtKey)
 
                 res.status(201).json({ message: "Login successful", user: existingUser, token })
             } else {
@@ -69,7 +69,7 @@ exports.googleAuth = async (req, res) => {
         const existingUser = await Users.findOne({ email });
         if (existingUser) {
             // token genaration 
-            const token = jwt.sign({ usermail: existingUser.email, role: existingUser.role }, process.env.jwtKey)
+            const token = jwt.sign({userId: existingUser._id, usermail: existingUser.email, role: existingUser.role }, process.env.jwtKey)
             console.log(token);
             res.status(200).json({ message: "Login Sucecessful", user: existingUser, token })
 
@@ -79,7 +79,7 @@ exports.googleAuth = async (req, res) => {
             const newUser = new Users({ username, email, password, role, status, profile })
             await newUser.save(); // save to  database 
             // token genaration
-            const token = jwt.sign({ usermail: newUser.email, role: newUser.role }, process.env.jwtKey)
+            const token = jwt.sign({userId: existingUser._id, usermail: newUser.email, role: newUser.role }, process.env.jwtKey)
             console.log(token);
             res.status(201).json({ message: "login sucecessful", user: newUser, token });// second created user as response
 

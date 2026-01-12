@@ -12,13 +12,16 @@ const ownerJwtMiddleware = (req, res, next) => {
 
     // 2. Extract token
     const token = authHeader.slice(7);
+    console.log(token);
     
     // 3. Verify token
-    const jwtVerification = jwt.verify(token, process.env.jwtkey);
+    console.log(process.env.jwtKey);
+    
+    const jwtVerification = jwt.verify(token, process.env.jwtKey);
     console.log("Verified:", jwtVerification);
 
     // 4. Attach data to request object
-    req.payload = jwtVerification.userId; // Use userId or usermail based on your login logic
+    req.userID = jwtVerification.userId; // Use userId or usermail based on your login logic
     req.role = jwtVerification.role;
 
 
