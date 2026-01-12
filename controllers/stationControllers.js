@@ -47,7 +47,6 @@ exports.updateStationStatus = async (req, res) => {
 
 // get View Stations
 exports.getViewStations = async (req, res) => {
-    console.log("Admin Request Received at /admin/View-stations"); // Debug log 1
 
     try {
         // 1. Fetch stations with View status
@@ -72,24 +71,23 @@ exports.getViewStations = async (req, res) => {
 };
 
 
-// get View Stations
-exports.getOwnerViewStations = async (req, res) => {
-    console.log("Admin Request Received at /admin/View-stations"); // Debug log 1
+// get View Stations for the logged-in Owner
+exports.getViewOwnerStations = async (req, res) => {
+    // Debug log to ensure user ID is being passed from JWT middleware
+    console.log("Owner ID from JWT:", req.user.id); 
 
     try {
-        // 1. Fetch stations with View status
-        // 2. Populate owner details (Username, Email, Status)
-        const viewStations = await Stations.find({ status: { $ne: "PENDING" } })
-            .populate({
-                path: 'ownerId',
-                select: 'username email status'
-            });
+        // 1. Fetch stations where ownerId matches the ID from the JWT
+        // 2. We filter by ownerId: req.user.id
+        const viewStations = await Stations.find({ 
+            ownerId: req.user.id, 
+        })
 
-        if (!viewStations) {
-            return res.status(404).json({ message: "No stations found collection" });
+        // If the array is empty, it means no stations are registered for this user
+        if (!viewStations || viewStations.length === 0) {
+            return res.status(404).json({ message: "No stations found for this owner." });
         }
 
-        // console.log(`Found ${viewStations.length} pending stations.`); // Debug log 2
         res.status(200).json(viewStations);
 
     } catch (error) {

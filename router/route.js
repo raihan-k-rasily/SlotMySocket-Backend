@@ -6,6 +6,7 @@ const userControllers = require('../controllers/userControllers')
 const stationControllers = require('../controllers/stationControllers')
 
 const adminJWTMiddleware = require('../middlewares/adminJWTMiddleware')
+const ownerJWTMiddleware = require('../middlewares/ownerJWTMiddleware')
 const router = express.Router()
 
 //Register user
@@ -34,5 +35,10 @@ router.get('/api/admin/all-users', adminJWTMiddleware, userControllers.getAllUse
 
 // update Station Status
 router.put('/api/admin/update-user-status/:id', adminJWTMiddleware, userControllers.updateUsersStatus);
+
+
+// Get stations of owner View
+router.get('/api/owner/view-owner-stations', ownerJWTMiddleware, stationControllers.getViewOwnerStations);
+
 
 module.exports = router;
