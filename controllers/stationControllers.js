@@ -96,3 +96,29 @@ exports.getViewOwnerStations = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
+
+// add Owner Stations for the logged-in Owner
+exports.addOwnerStations = async (req, res) => {
+    // Debug log to ensure user ID is being passed from JWT middleware
+    console.log("Owner ID from JWT:", req.userID); 
+
+    try {
+        // 1. Fetch stations where ownerId matches the ID from the JWT
+        // 2. We filter by ownerId: req.user.id
+        const viewStations = await Stations.find({ 
+            ownerId: req.userID
+        })
+        console.log(viewStations);
+        
+        // If the array is empty, it means no stations are registered for this user
+        if (!viewStations || viewStations.length === 0) {
+            return res.status(404).json({ message: "No stations found for this owner." });
+        }
+
+        res.status(200).json(viewStations);
+
+    } catch (error) {
+        console.error("Controller Error:", error.message);
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
+};
