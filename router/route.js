@@ -41,4 +41,7 @@ router.put('/api/admin/update-user-status/:id', adminJWTMiddleware, userControll
 router.get('/api/owner/view-owner-stations', ownerJWTMiddleware, stationControllers.getViewOwnerStations);
 
 
+// Add stations By owner 
+router.get('/api/owner/add-owner-stations', ownerJWTMiddleware, stationControllers.registerNewStationByOwner);
+
 module.exports = router;

@@ -98,27 +98,62 @@ exports.getViewOwnerStations = async (req, res) => {
 };
 
 // add Owner Stations for the logged-in Owner
-exports.addOwnerStations = async (req, res) => {
-    // Debug log to ensure user ID is being passed from JWT middleware
-    console.log("Owner ID from JWT:", req.userID); 
+exports.registerNewStationByOwner = async (req, res) => {
+    const { stationName, latitude, longitude, openingAt, closingAt } = req.body;
+    const ownerId = req.userID; // Taken from your JWT middleware
 
     try {
-        // 1. Fetch stations where ownerId matches the ID from the JWT
-        // 2. We filter by ownerId: req.user.id
-        const viewStations = await Stations.find({ 
-            ownerId: req.userID
-        })
-        console.log(viewStations);
-        
-        // If the array is empty, it means no stations are registered for this user
-        if (!viewStations || viewStations.length === 0) {
-            return res.status(404).json({ message: "No stations found for this owner." });
+        // 1. Check if station already exists at these coordinates
+        const existingStation = await Stations.findOne({
+            "location.latitude": parseFloat(latitude),
+            "location.longitude": parseFloat(longitude)
+        });
+
+        if (existingStation) {
+            return res.status(409).json({ message: "A station is already registered at this location." });
         }
 
-        res.status(200).json(viewStations);
+        // 2. Fetch Address from OSM (Logic reused from your previous code)
+        let address = "Address not found";
+        try {
+            const osmResponse = await axios.get(
+                `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=en`,
+                { headers: { 'User-Agent': 'SlotMySocket-App' }, timeout: 5000 }
+            );
+            if (osmResponse.data && osmResponse.data.address) {
+                const addr = osmResponse.data.address;
+                const parts = [
+                    addr.road || addr.suburb || "",
+                    addr.city || addr.town || addr.village || "",
+                    addr.state || "",
+                    addr.postcode || ""
+                ];
+                address = parts.filter(p => p !== "").join(", ");
+            }
+        } catch (osmErr) {
+            address = `Lat: ${latitude}, Lon: ${longitude}`;
+        }
 
-    } catch (error) {
-        console.error("Controller Error:", error.message);
-        res.status(500).json({ message: "Internal Server Error", error: error.message });
+        // 3. Create the Station
+        const newStation = new Stations({
+            stationName,
+            ownerId: ownerId,
+            location: {
+                address: address,
+                latitude: parseFloat(latitude),
+                longitude: parseFloat(longitude)
+            },
+            workingHours: {
+                openingAt: openingAt,
+                closingAt: closingAt
+            },
+            status: "PENDING" // Requires Admin Approval
+        });
+
+        await newStation.save();
+        res.status(201).json({ message: "Station registered successfully. Awaiting approval.", station: newStation });
+
+    } catch (err) {
+        res.status(500).json({ message: 'Error registering station', error: err.message });
     }
-};
+}
