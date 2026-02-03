@@ -157,3 +157,65 @@ exports.registerNewStationByOwner = async (req, res) => {
         res.status(500).json({ message: 'Error registering station', error: err.message });
     }
 }
+
+
+// add Owner Stations for the logged-in Owner
+exports.registerNewStationByOwner1 = async (req, res) => {
+    const { stationName, latitude, longitude, openingAt, closingAt } = req.body;
+    const ownerId = req.userID; // Taken from your JWT middleware
+
+    try {
+        // 1. Check if station already exists at these coordinates
+        const existingStation = await Stations.findOne({
+            "location.latitude": parseFloat(latitude),
+            "location.longitude": parseFloat(longitude)
+        });
+
+        if (existingStation) {
+            return res.status(409).json({ message: "A station is already registered at this location." });
+        }
+
+        // 2. Fetch Address from OSM (Logic reused from your previous code)
+        let address = "Address not found";
+        try {
+            const osmResponse = await axios.get(
+                `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=en`,
+                { headers: { 'User-Agent': 'SlotMySocket-App' }, timeout: 5000 }
+            );
+            if (osmResponse.data && osmResponse.data.address) {
+                const addr = osmResponse.data.address;
+                const parts = [
+                    addr.road || addr.suburb || "",
+                    addr.city || addr.town || addr.village || "",
+                    addr.state || "",
+                    addr.postcode || ""
+                ];
+                address = parts.filter(p => p !== "").join(", ");
+            }
+        } catch (osmErr) {
+            address = `Lat: ${latitude}, Lon: ${longitude}`;
+        }
+
+        // 3. Create the Station
+        const newStation = new Stations({
+            stationName,
+            ownerId: ownerId,
+            location: {
+                address: address,
+                latitude: parseFloat(latitude),
+                longitude: parseFloat(longitude)
+            },
+            workingHours: {
+                openingAt: openingAt,
+                closingAt: closingAt
+            },
+            status: "PENDING" // Requires Admin Approval
+        });
+
+        await newStation.save();
+        res.status(201).json({ message: "Station registered successfully. Awaiting approval.", station: newStation });
+
+    } catch (err) {
+        res.status(500).json({ message: 'Error registering station', error: err.message });
+    }
+}
