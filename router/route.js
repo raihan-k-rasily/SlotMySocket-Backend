@@ -4,6 +4,7 @@ const express = require('express')
 
 const userControllers = require('../controllers/userControllers')
 const stationControllers = require('../controllers/stationControllers')
+const socketControllers = require('../controllers/socketControllers')
 
 const adminJWTMiddleware = require('../middlewares/adminJWTMiddleware')
 const ownerJWTMiddleware = require('../middlewares/ownerJWTMiddleware')
@@ -42,6 +43,9 @@ router.get('/api/owner/view-owner-stations', ownerJWTMiddleware, stationControll
 
 
 // Add stations By owner 
-router.get('/api/owner/add-owner-stations', ownerJWTMiddleware, stationControllers.registerNewStationByOwner);
+router.post('/api/owner/add-owner-stations', ownerJWTMiddleware, stationControllers.registerNewStationByOwner);
+
+// Add socket By owner 
+router.post('/api/owner/add-owner-socket', ownerJWTMiddleware, socketControllers.registerNewSocket);
 
 module.exports = router;
