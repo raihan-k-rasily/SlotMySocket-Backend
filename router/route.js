@@ -8,6 +8,8 @@ const socketControllers = require('../controllers/socketControllers')
 
 const adminJWTMiddleware = require('../middlewares/adminJWTMiddleware')
 const ownerJWTMiddleware = require('../middlewares/ownerJWTMiddleware')
+const jwtMiddleware = require('../middlewares/jwtMiddleware')
+
 const router = express.Router()
 
 //Register user
@@ -47,5 +49,15 @@ router.post('/api/owner/add-owner-stations', ownerJWTMiddleware, stationControll
 
 // Add socket By owner 
 router.post('/api/owner/add-owner-socket', ownerJWTMiddleware, socketControllers.registerNewSocket);
+
+// Get socket By owner 
+router.post('/api/owner/get-station-socket', ownerJWTMiddleware, socketControllers.getStationSockets);
+
+// Get approved Stations for user
+router.post('/api/user/get-approved-stations', jwtMiddleware, stationControllers.getApprovedStations);
+
+// Get Selected Stations for user
+router.get('/api/user/get-view-stations', jwtMiddleware, stationControllers.getStationById);
+
 
 module.exports = router;

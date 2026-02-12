@@ -4,7 +4,7 @@ const socketSchema = new mongoose.Schema({
 
     stationId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Station",
+        ref: "Socket",
         required: true
     },
 
@@ -50,7 +50,7 @@ const socketSchema = new mongoose.Schema({
     status: {
         type: String,
         enum: ['OPEN', 'CLOSED', 'UNDER_MAINTENANCE', 'PENDING', 'BACKUP'],
-        default: 'PENDING'
+        default: 'OPEN'
     }
 
 

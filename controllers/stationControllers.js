@@ -1,4 +1,5 @@
 const Stations = require('../models/stationModel');
+const sockets = require('../models/socketModel');
 const Users = require('../models/userModel');
 
 // get Pending Stations
@@ -186,3 +187,64 @@ if (isNaN(lat) || isNaN(lon)) {
   });
  }
 };
+
+//  Get all approved stations for user 
+exports.getApprovedStations = async (req, res) => {
+  try {
+    const stations = await Stations.aggregate([
+      { $match: { status: "APPROVED" } },
+
+      {
+        $lookup: {
+          from: "sockets",
+          localField: "_id",
+          foreignField: "stationId",
+          as: "sockets"
+        }
+      },
+
+      {
+        $addFields: {
+          socketCount: { $size: "$sockets" }
+        }
+      },
+
+      {
+        $match: {
+          socketCount: { $gt: 1 } // 👈 more than 1 socket
+        }
+      },
+
+      {
+        $project: {
+          stationName: 1,
+          location: 1,
+          workingHours: 1,
+          socketCount: 1
+        }
+      }
+    ]);
+
+    res.status(200).json(stations);
+  } catch (err) {
+    console.error("Fetch Stations Error:", err);
+    res.status(500).json({ message: "Failed to fetch stations" });
+  }
+};
+
+// Get Station data by Id
+exports.getStationById = async (req, res) => {
+  try {
+    const station = await Stations.findById(req.body.id);
+
+    if (!station) {
+      return res.status(404).json({ message: "Station not found" });
+    }
+
+    res.status(200).json(station);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error fetching station" });
+  }
+};
+

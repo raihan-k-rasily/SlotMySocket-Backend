@@ -1,20 +1,22 @@
-const { ifError } = require('assert/strict');
-const Sockets = require('../models/socketModel');
+
+const Stations = require('../models/stationModel');
+const Socket = require('../models/socketModel');
 
 
-// add Owner Stations for the logged-in Owner
+
+// add Station's Socket 
 exports.registerNewSocket = async (req, res) => {
     // console.log(req.body);
 
     const { stationId, powerType, connectorType, pricePerHour } = req.body;
 
-    const station = await Stations.findById(stationId);
+    // const station = await Stations.findById(stationId);
 
 
     const ownerId = req.userID;
     console.log(ownerId);
 
-    console.log(stationName);
+    // console.log(stationName);
 
 
 
@@ -48,8 +50,7 @@ exports.registerNewSocket = async (req, res) => {
         res.status(201).json({
             message: isBackupSocket
                 ? "Backup socket added successfully"
-                : "Socket added successfully",
-            socket: newSocket
+                : "Socket added successfully"
         });
 
     } catch (err) {
@@ -60,4 +61,32 @@ exports.registerNewSocket = async (req, res) => {
         });
     }
 
+};
+
+
+// get View Stations for the logged-in Owner
+exports.getStationSockets = async (req, res) => {
+    // Debug log to ensure user ID is being passed from JWT middleware
+    const {stationId} = req.body
+    console.log("Owner ID from JWT:", stationId); 
+
+    try {
+        // 1. Fetch stations where ownerId matches the ID from the JWT
+        // 2. We filter by ownerId: req.user.id
+        const viewSockets = await Socket.find({ 
+            stationId: stationId
+        })
+        console.log(viewSockets);
+        
+        // If the array is empty, it means no stations are registered for this user
+        if (!viewSockets || viewSockets.length === 0) {
+            return res.status(404).json({ message: "No sockets found for this stations." });
+        }
+
+        res.status(200).json(viewSockets);
+
+    } catch (error) {
+        console.error("Controller Error:", error.message);
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
 };
