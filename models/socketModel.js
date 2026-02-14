@@ -4,7 +4,7 @@ const socketSchema = new mongoose.Schema({
 
     stationId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Socket",
+        ref: "Station",
         required: true
     },
 

@@ -1,6 +1,7 @@
 const Stations = require('../models/stationModel');
-const sockets = require('../models/socketModel');
+const Socket = require('../models/socketModel');
 const Users = require('../models/userModel');
+const Booking = require('../models/bookingModel');
 
 // get Pending Stations
 exports.getPendingStations = async (req, res) => {
@@ -233,17 +234,39 @@ exports.getApprovedStations = async (req, res) => {
 };
 
 // Get Station data by Id
+
 exports.getStationById = async (req, res) => {
   try {
-    const station = await Stations.findById(req.body.id);
+    const stationId = req.params.id;
+
+    const station = await Stations.findById(stationId).lean();
 
     if (!station) {
       return res.status(404).json({ message: "Station not found" });
     }
 
+    // ✅ Get sockets (exclude BACKUP)
+    const sockets = await Socket.find({
+      stationId: stationId,
+      status: { $ne: "BACKUP" }
+    }).lean();
+
+    // ✅ Get today's bookings
+    // const today = new Date().toISOString().split("T")[0];
+
+    // const bookings = await Booking.find({
+    //   stationId: stationId,
+    //   date: today,
+    //   status: "CONFIRMED"
+    // }).lean();
+
+    station.sockets = sockets;
+    // station.bookings = bookings;
+
     res.status(200).json(station);
+
   } catch (err) {
-    console.error(err);
+    console.error("GET STATION ERROR:", err);
     res.status(500).json({ message: "Error fetching station" });
   }
 };

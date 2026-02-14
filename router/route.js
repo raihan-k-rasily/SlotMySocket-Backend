@@ -57,7 +57,8 @@ router.post('/api/owner/get-station-socket', ownerJWTMiddleware, socketControlle
 router.post('/api/user/get-approved-stations', jwtMiddleware, stationControllers.getApprovedStations);
 
 // Get Selected Stations for user
-router.get('/api/user/get-view-stations', jwtMiddleware, stationControllers.getStationById);
+router.get('/api/user/get-view-stations/:id', jwtMiddleware, stationControllers.getStationById);
+
 
 
 module.exports = router;
