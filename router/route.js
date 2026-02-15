@@ -5,6 +5,7 @@ const express = require('express')
 const userControllers = require('../controllers/userControllers')
 const stationControllers = require('../controllers/stationControllers')
 const socketControllers = require('../controllers/socketControllers')
+const bookingController = require('../controllers/bookingController')
 
 const adminJWTMiddleware = require('../middlewares/adminJWTMiddleware')
 const ownerJWTMiddleware = require('../middlewares/ownerJWTMiddleware')
@@ -58,6 +59,12 @@ router.post('/api/user/get-approved-stations', jwtMiddleware, stationControllers
 
 // Get Selected Stations for user
 router.get('/api/user/get-view-stations/:id', jwtMiddleware, stationControllers.getStationById);
+
+// Get Selected Stations for user
+router.post('/api/user/make-booking-payment', jwtMiddleware, bookingController.makeBookingPayment);
+
+// Get Booked Slots
+router.get("/api/user/booked-slots", jwtMiddleware, bookingController.getBookedSlots);
 
 
 

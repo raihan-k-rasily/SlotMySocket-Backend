@@ -10,6 +10,8 @@ const jwtMiddleware = (req,res,next)=>{
   const jwtVerification = jwt.verify(token,process.env.jwtkey)
   console.log(jwtVerification);
   req.payload = jwtVerification.usermail
+  
+    req.userId = jwtVerification.userId;
   next()
  } catch (err) {
   res.status(401).json("Authentication Error",err)
