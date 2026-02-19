@@ -26,7 +26,7 @@ router.post('/api/google-login', userControllers.googleAuth)
 router.post('/api/registerowner', userControllers.registerOwner)
 
 //get Pending Stations
-router.get('/api/admin/getPendingStations',stationControllers.getPendingStations)
+router.get('/api/admin/getPendingStations',adminJWTMiddleware  , stationControllers.getPendingStations)
 
 // update Station Status
 router.put('/api/admin/station-status/:id', adminJWTMiddleware, stationControllers.updateStationStatus);

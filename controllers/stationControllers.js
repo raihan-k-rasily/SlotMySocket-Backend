@@ -10,9 +10,13 @@ exports.getPendingStations = async (req, res) => {
     try {
         // 1. Fetch stations with PENDING status
         // 2. Populate owner details (Username, Email, Status)
+        const ownerId = req.userId;
+
+        console.log(ownerId);
+        
         const pendingRequests = await Stations.find({ status: "PENDING" })
             .populate({
-                path: 'userId',
+                path: 'ownerId',
                 select: 'username email status'
             });
 

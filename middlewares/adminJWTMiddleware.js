@@ -18,7 +18,7 @@ const adminJwtMiddleware = (req, res, next) => {
     console.log("Verified:", jwtVerification);
 
     // 4. Attach data to request object
-    req.payload = jwtVerification.userId; // Use userId or usermail based on your login logic
+    req.userId = jwtVerification.userId; // Use userId or usermail based on your login logic
     req.role = jwtVerification.role;
 
     // 5. Role Check - Ensure this matches EXACTLY what you store during login
