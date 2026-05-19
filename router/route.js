@@ -6,6 +6,7 @@ const userControllers = require('../controllers/userControllers')
 const stationControllers = require('../controllers/stationControllers')
 const socketControllers = require('../controllers/socketControllers')
 const bookingController = require('../controllers/bookingController')
+const statsController = require('../controllers/statsController')
 
 const adminJWTMiddleware = require('../middlewares/adminJWTMiddleware')
 const ownerJWTMiddleware = require('../middlewares/ownerJWTMiddleware')
@@ -66,6 +67,18 @@ router.post('/api/user/make-booking-payment', jwtMiddleware, bookingController.m
 // Get Booked Slots
 router.get("/api/user/booked-slots", jwtMiddleware, bookingController.getBookedSlots);
 
+// Get User Booking History
+router.get("/api/user/booking-history", jwtMiddleware, bookingController.getUserBookings);
 
+
+
+// Dashboard Statistics
+router.get("/api/admin/stats", adminJWTMiddleware, statsController.getAdminStats);
+router.get("/api/owner/stats", ownerJWTMiddleware, statsController.getOwnerStats);
+
+// Profile Management
+router.get("/api/user/profile", jwtMiddleware, userControllers.getProfile);
+router.put("/api/user/profile", jwtMiddleware, userControllers.updateProfile);
 
 module.exports = router;
+

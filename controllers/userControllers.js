@@ -174,7 +174,7 @@ exports.registerOwner = async (req, res) => {
         await newStation.save();
 
         const token = jwt.sign(
-            { usermail: savedUser.email, role: savedUser.role },
+            { userId: savedUser._id, usermail: savedUser.email, role: savedUser.role },
             process.env.jwtKey
         );
 
@@ -228,3 +228,55 @@ exports.updateUsersStatus = async (req, res) => {
         res.status(500).json({ message: "Failed to update status", error: error.message });
     }
 };
+// get Profile
+exports.getProfile = async (req, res) => {
+    try {
+        const userId = req.userId || req.userID;
+        const user = await Users.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // If owner, fetch their stations too
+        let stations = [];
+        if (user.role === 'Owner') {
+            stations = await Stations.find({ ownerId: userId });
+        }
+
+        res.status(200).json({ user, stations });
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching profile", error: error.message });
+    }
+};
+
+// update Profile
+exports.updateProfile = async (req, res) => {
+    try {
+        const userId = req.userId || req.userID;
+        const { username, email, currentPassword, newPassword, profile } = req.body;
+
+        const user = await Users.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // If password change is requested
+        if (newPassword) {
+            if (user.password !== currentPassword) {
+                return res.status(401).json({ message: "Incorrect current password" });
+            }
+            user.password = newPassword;
+        }
+
+        // Update other fields
+        if (username) user.username = username;
+        if (email) user.email = email;
+        if (profile) user.profile = profile;
+
+        const updatedUser = await user.save();
+        res.status(200).json({ message: "Profile updated successfully", user: updatedUser });
+    } catch (error) {
+        res.status(500).json({ message: "Error updating profile", error: error.message });
+    }
+};
+

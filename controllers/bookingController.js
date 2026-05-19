@@ -95,3 +95,18 @@ exports.getBookedSlots = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch slots" });
   }
 };
+
+exports.getUserBookings = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const bookings = await Booking.find({ userId })
+      .populate("stationId")
+      .populate("socketId")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(bookings);
+  } catch (err) {
+    console.error("Fetch user bookings error:", err);
+    res.status(500).json({ message: "Failed to fetch booking history" });
+  }
+};
