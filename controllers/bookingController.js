@@ -102,7 +102,7 @@ exports.getUserBookings = async (req, res) => {
     const bookings = await Booking.find({ userId })
       .populate("stationId")
       .populate("socketId")
-      .sort({ createdAt: -1 });
+      .sort({ createdAtŌ: -1 });
 
     res.status(200).json(bookings);
   } catch (err) {
